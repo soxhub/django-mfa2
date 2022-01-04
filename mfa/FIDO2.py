@@ -159,7 +159,7 @@ def authenticate_complete(request):
                         authenticated = request.user.is_authenticated
                     except:
                         authenticated = request.user.is_authenticated()
-                    if not authenticated:
+                    if not authenticated or request.session.get('u2f_verify_this'):
                         res = login(request)
                         if not "location" in res: return reset_cookie(request)
                         return HttpResponse(simplejson.dumps({'status': "OK", "redirect": res["location"]}),
