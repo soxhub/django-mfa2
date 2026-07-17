@@ -1,7 +1,78 @@
 # Change Log
+
+## 3.2
+* Add deprecation warning for U2F
+* Added 95% test coverage thanks to @mdewhirst
+* Added support to FIDO < 2.3.
+
+## 3.1.2
+* Fix: Issue while adding Email as 2FA.
+
+
+## 3.1.1
+* Fix: Issue #100, Issue related to error message when jsonfield isn't installed on django < 3.1.
+
+## 3.1
+
+* Upgraded to fido==1.2.0
+* Added: CSP Compliance (optional), thanks to @lvanbuiten, to under CSP refer to [van Buiten](https://github.com/mkalioby/django-mfa2/pull/93#issuecomment-2847112870)
+* Fix: issue when finding the user based on credential id.
+* Fix: Move key delete to be POST call. Thanks to @AndreasDickow
+
+## 3.0.1
+
+* Fix: Issue with some usernames that crashes FIDO2 registration.
+
+## 3.0
+
+This is a major cleanup and CSS adjustments so please test before deployment.
+
+* Updated to fido2==1.1.3
+* Removed: CBOR and exchange is done in JSON now.
+* Removed: `simplejson` package from dependencies.
+* Email OTP is always 6 numbers.
+* Better support for bootstrap 4 and 5.
+* Added: the following settings
+  * `MFA_FIDO2_RESIDENT_KEY`: Defaults to `Discouraged` which was the old behaviour
+  * `MFA_FIDO2_AUTHENTICATOR_ATTACHMENT`: If you like to have a PLATFORM Authenticator, Defaults to NONE
+  * `MFA_FIDO2_USER_VERIFICATION`:  If you need User Verification
+  * `MFA_FIDO2_ATTESTATION_PREFERENCE`: If you like to have an Attention
+  * `MFA_ENFORCE_EMAIL_TOKEN`: if you want the user to receive OTP by email without enrolling, if this the case, the system admins shall make sure that emails are valid.
+  * `MFA_SHOW_OTP_IN_EMAIL_SUBJECT`: If you like to show the OTP in the email subject
+  * `MFA_OTP_EMAIL_SUBJECT`: The subject of the email after the token allows placeholder '%s' for otp
+
+## 2.9.0
+* Add: Set black as code formatter
+* Add: Add Pyre as a type checker
+* Add: Add pre-commit hooks
+* Upgrade: fido to be 1.1.0 as minimum
+
+## 2.8.0
+* Support For Django 4.0+ JSONField
+* Removed jsonfield package from requirements
+
+## 2.7.0 
+* Fixed #70
+* Add QR Code for trusted device link
+* Better formatting for trusted device start page.
+
+## 2.6.1
+* Fix: CVE-2022-42731: related to the possibility of registration replay attack.
+  Thanks to 'SSE (Secure Systems Engineering)'
+
 ## 2.5.1
-* Fix: CVE-2022-42731: related to possibility of registration replay attack thanks to 'SSE (Secure Systems Engineering)' 
-   
+* Fix: CVE-2022-42731: related to the possibility of registration replay attack.
+  Thanks to 'SSE (Secure Systems Engineering)' 
+
+## 2.6.0
+   * Adding Backup Recovery Codes (Recovery) as a method.
+     Thanks to @Spitfireap for work, and  @peterthomassen for guidance.
+   * Added: `RECOVERY_ITERATION` to set the number of iteration when hashing recovery token
+   * Added: `MFA_ENFORCE_RECOVERY_METHOD` to enforce the user to enroll in the recovery code method once, they add any other method,
+   * Added: `MFA_ALWAYS_GO_TO_LAST_METHOD` to the settings which redirects the user automatically to the last used method when logging in
+   * Added: `MFA_RENAME_METHODS` to be able to rename the methods for the user.
+   * Fix: Alot of CSS fixes for the example application
+
 ## 2.5.0
 
    * Fixed: issue in the 'Authorize' button don't show on Firefox and Chrome on iOS.

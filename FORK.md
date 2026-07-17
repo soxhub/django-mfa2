@@ -2,7 +2,9 @@
 
 This is a soxhub fork of [mkalioby/django-mfa2](https://github.com/mkalioby/django-mfa2),
 consumed by [soxhub/galaxy](https://github.com/soxhub/galaxy) as a git dependency pinned
-to a commit on the `auditboard-customizations` branch.
+to a commit on the `auditboard-customizations` branch. The branch currently tracks
+upstream v3.2 (merged for `fido2` 2.x support, which modern `cryptography` releases
+require) plus the customizations below.
 
 ## Customizations on top of upstream
 
@@ -14,6 +16,14 @@ to a commit on the `auditboard-customizations` branch.
 2. **Template tweaks**: a "Register a New Key" link on the FIDO2 recheck page
    (`mfa/templates/FIDO2/recheck.html`) and an explicit "Delete" label next to the
    trash icon on the key list (`mfa/templates/MFA.html`).
+
+## Known upstream test issues with fido2 2.2.x
+
+Upstream v3.2 declares support for `fido2 >= 1.1.1, < 2.3`, but its test suite has a
+handful of failures under fido2 2.2.x (tests patch `fido2.features.webauthn_json_mapping`,
+which fido2 2.2 removed, plus one error-message assertion). Production code guards that
+attribute with `hasattr`, so these are test-only issues. Verified identical failure sets
+on pure upstream v3.2 and on this branch.
 
 ## What it would take to drop the fork
 
@@ -27,9 +37,6 @@ integration work, not feature work:
 2. **Move the template tweaks into galaxy.** Django template resolution lets galaxy
    override `mfa/templates/*` by shipping its own copies in an app listed before `mfa`
    in `INSTALLED_APPS`; the two tweaks above are cosmetic and easy to carry there.
-3. **Upgrade to current upstream** (3.x line) and re-test the FIDO2 login flow,
-   since upstream has since migrated to newer `python-fido2` APIs and dropped older
-   Django support.
 
 Once 1 and 2 are done, galaxy can depend on `django-mfa2` from PyPI directly and this
 repository can be archived.
