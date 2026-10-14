@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.conf import settings
 
 from mfa.views import verify
-from . import TrustedDevice, U2F, FIDO2, totp
+from . import TrustedDevice, FIDO2, totp
 from .models import User_Keys
 
 
@@ -29,9 +29,6 @@ def recheck(request):
         return JsonResponse({"res": False})
     if method == "Trusted Device":
         return JsonResponse({"res": TrustedDevice.verify(request)})
-
-    elif method == "U2F":
-        return JsonResponse({"html": U2F.recheck(request).content})
 
     elif method == "FIDO2":
         return JsonResponse({"html": FIDO2.recheck(request).content})

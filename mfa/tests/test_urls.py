@@ -5,7 +5,6 @@ Tests URL patterns and routing for MFA endpoints:
 - Main MFA views: mfa_home, mfa_methods_list, mfa_reset_cookie
 - TOTP URLs: totp_auth, start_new_otop, totp_recheck
 - FIDO2 URLs: fido2_auth, fido2_start, fido2_complete, fido2_begin, fido2_complete_auth, fido2_recheck
-- U2F URLs: u2f_auth, start_u2f, bind_u2f, u2f_recheck
 - Trusted Device URLs: trusted_device_auth, trusted_device_start, trusted_device_add, trusted_device_verify, trusted_device_recheck
 - Email URLs: email_auth, start_email, email_recheck
 - Recovery URLs: recovery_auth, start_recovery, recovery_recheck, recovery_gen_tokens, recovery_get_tokens_left
@@ -19,7 +18,7 @@ from django.contrib import admin
 from django.urls import resolve, reverse, path, include
 from django.test import override_settings
 from mfa.urls import urlpatterns as mfa_urlpatterns
-from mfa import views, totp, U2F, TrustedDevice, helpers, FIDO2, Email, recovery
+from mfa import views, totp, TrustedDevice, helpers, FIDO2, Email, recovery
 from .mfatestcase import MFATestCase, dummy_logout
 
 
@@ -85,13 +84,6 @@ class MFAURLTests(MFATestCase):
         resolved = resolve(url)
         self.assertEqual(resolved.func, FIDO2.auth)
 
-    def test_u2f_auth_url(self):
-        """Resolves U2F auth URL correctly."""
-        url = reverse("u2f_auth")
-        self.assertEqual(url, "/mfa/u2f/auth")
-        resolved = resolve(url)
-        self.assertEqual(resolved.func, U2F.auth)
-
 
 class TestURLsEdgeCases(MFATestCase):
     """Additional test cases for URLs to achieve 100% coverage."""
@@ -126,11 +118,6 @@ class TestURLsEdgeCases(MFATestCase):
             ("recovery_recheck", "/mfa/recovery/recheck"),
             ("start_email", "/mfa/email/start/"),
             ("email_auth", "/mfa/email/auth/"),
-            ("start_u2f", "/mfa/u2f/"),
-            ("bind_u2f", "/mfa/u2f/bind"),
-            ("u2f_auth", "/mfa/u2f/auth"),
-            ("u2f_recheck", "/mfa/u2f/process_recheck"),
-            ("u2f_verify", "/mfa/u2f/verify"),
             ("start_fido2", "/mfa/fido2/"),
             ("fido2_auth", "/mfa/fido2/auth"),
             ("fido2_begin_auth", "/mfa/fido2/begin_auth"),
@@ -195,7 +182,6 @@ class TestURLsEdgeCases(MFATestCase):
         imported_modules = [
             "views",
             "totp",
-            "U2F",
             "TrustedDevice",
             "helpers",
             "FIDO2",
@@ -234,7 +220,7 @@ class TestURLsEdgeCases(MFATestCase):
         self.assertEqual(url, "/mfa/goto/totp")
 
         # Test that goto can handle various method names
-        for method in ["totp", "u2f", "fido2", "recovery", "email"]:
+        for method in ["totp", "fido2", "recovery", "email"]:
             url = reverse("mfa_goto", args=[method])
             self.assertTrue(url.endswith(f"/goto/{method}"))
 
@@ -249,7 +235,6 @@ class TestURLsEdgeCases(MFATestCase):
             ("/mfa/totp/start/", "start_new_otop"),
             ("/mfa/email/start/", "start_email"),
             ("/mfa/email/auth/", "email_auth"),
-            ("/mfa/u2f/", "start_u2f"),
             ("/mfa/fido2/", "start_fido2"),
             ("/mfa/td/", "start_td"),
         ]

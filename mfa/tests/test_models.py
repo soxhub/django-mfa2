@@ -10,7 +10,7 @@ Tests MFA-specific behaviors of the User_Keys model:
 Scenarios: Key creation, signature generation, JWT validation, error handling.
 """
 
-from jose import jwt
+import jwt
 from unittest.mock import patch
 from django.conf import settings
 from django.test import override_settings
@@ -53,7 +53,9 @@ class UserKeysModelTests(MFATestCase):
         self.assertIn("signature", key.properties)
 
         # Decode the signature and verify its contents
-        decoded = jwt.decode(key.properties["signature"], settings.SECRET_KEY)
+        decoded = jwt.decode(
+            key.properties["signature"], settings.SECRET_KEY, algorithms=["HS256"]
+        )
         self.assertEqual(decoded["username"], self.username)
         self.assertEqual(decoded["key"], "device_key")
 
