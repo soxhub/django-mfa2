@@ -1,0 +1,10 @@
+{% load static %}
+<script type="application/javascript" src="{% static 'mfa/js/base64url.js' %}"></script>
+<script type="application/javascript" src="{% static 'mfa/js/helpers.js' %}"></script>
+<script type="application/javascript" src="{% static 'mfa/js/ua-parser.min.js' %}"></script>
+{% url 'fido2_begin_auth' as fido2_begin_auth %}
+{{ fido2_begin_auth|json_script:"fido2_begin_auth" }}
+{% url 'fido2_complete_auth' as fido2_complete_auth %}
+{{ fido2_complete_auth|json_script:"fido2_complete_auth" }}
+{{ mode|json_script:"mode" }}
+<script type="application/javascript" src="{% static 'mfa/js/FIDO2/auth_js.js' %}"></script>

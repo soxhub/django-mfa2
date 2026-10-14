@@ -1,0 +1,18 @@
+[run]
+omit =
+    */tests/*
+    */migrations/*
+include=
+    */mfa/*
+    example/*
+
+[report]
+skip_covered = True
+show_missing = True
+omit =
+    */tests/*
+    */migrations/*
+include=
+    */mfa/*
+    example/*
+

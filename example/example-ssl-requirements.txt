@@ -1,0 +1,2 @@
+django-sslserver
+django-csp~=3.8

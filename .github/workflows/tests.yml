@@ -1,0 +1,49 @@
+name: tests
+
+on:
+  push:
+    branches: [auditboard-customizations]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # Match galaxy's runtime and Django line.
+          python-version: "3.13"
+
+      - name: Install
+        run: |
+          pip install -e . "django~=5.2.0" simplejson jsonLookup "django-csp>=4.0" django-sslserver
+
+      - name: Run tests
+        working-directory: example
+        run: |
+          set +e
+          python manage.py test mfa > ../test-output.txt 2>&1
+          set -e
+          cat ../test-output.txt
+          grep -E '^(FAIL|ERROR):' ../test-output.txt | sort -u > ../actual-failures.txt || true
+          if ! grep -qE '^Ran [0-9]+ tests' ../test-output.txt; then
+            echo "Test run did not complete:"; cat ../test-output.txt; exit 1
+          fi
+
+      - name: Compare with known failures
+        run: |
+          sort -u .github/known-test-failures.txt > expected-failures.txt
+          new=$(comm -13 expected-failures.txt actual-failures.txt)
+          fixed=$(comm -23 expected-failures.txt actual-failures.txt)
+          if [ -n "$new" ]; then
+            echo "::error::New test failures (tracebacks are in the Run tests step):"; echo "$new"
+          fi
+          if [ -n "$fixed" ]; then
+            echo "::error::Known failures now pass; remove them from .github/known-test-failures.txt:"; echo "$fixed"
+          fi
+          [ -z "$new" ] && [ -z "$fixed" ]
