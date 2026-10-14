@@ -1,5 +1,5 @@
 from django.db import models
-from jose import jwt
+import jwt
 from django.conf import settings
 
 try:

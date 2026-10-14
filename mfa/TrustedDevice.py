@@ -153,9 +153,11 @@ def send_email(request):
 
 def verify(request):
     if request.COOKIES.get("deviceid", None):
-        from jose import jwt
+        import jwt
 
-        json = jwt.decode(request.COOKIES.get("deviceid"), settings.SECRET_KEY)
+        json = jwt.decode(
+            request.COOKIES.get("deviceid"), settings.SECRET_KEY, algorithms=["HS256"]
+        )
         if json["username"].lower() == request.session["base_username"].lower():
             try:
                 uk = User_Keys.objects.get(

@@ -140,9 +140,6 @@ class MFATestCase(_BaseTestCase):
         "FIDO_AUTHENTICATOR_ATTACHMENT": "cross-platform",
         "FIDO_USER_VERIFICATION": "preferred",
         "FIDO_AUTHENTICATION_TIMEOUT": 30000,
-        # U2F settings
-        "U2F_APPID": "https://localhost:9000",
-        "U2F_FACETS": ["https://localhost:9000"],
     }
 
     def setUp(self):
@@ -555,114 +552,6 @@ class MFATestCase(_BaseTestCase):
             properties=properties,
         )
         return key
-
-    def create_u2f_key(self, enabled=True, properties=None):
-        """Create a U2F key for the test user.
-
-        Note: In real usage, keys are always created enabled and can only be disabled
-        through the UI toggle. The enabled parameter exists only for testing the
-        disabled state.
-
-        Args:
-            enabled (bool): Whether the key should be enabled. This is for testing
-                          only - real keys are always created enabled.
-            properties (dict, optional): Custom properties for the key. If None,
-                                       uses default U2F device structure.
-
-        Returns:
-            User_Keys: The created U2F key
-        """
-        if properties is None:
-            properties = {
-                "device": {
-                    "publicKey": "test_public_key",
-                    "keyHandle": "test_key_handle",
-                    "version": "U2F_V2",
-                },
-                "cert": "test_certificate_hash",
-            }
-
-        key = User_Keys.objects.create(
-            username=self.username,
-            key_type="U2F",
-            enabled=enabled,
-            properties=properties,
-        )
-        return key
-
-    def create_u2f_enrollment_mock(self, appid="https://localhost:9000"):
-        """Create a mock enrollment object for U2F registration.
-
-        This creates a proper mock object that matches the u2flib_server.u2f.begin_registration
-        return value, with both .json and .data_for_client attributes.
-
-        Args:
-            appid (str): The U2F application ID to use in the mock data
-
-        Returns:
-            MagicMock: Mock enrollment object with proper attributes
-
-        Used by: test_u2f.py ONLY
-        """
-        mock_enrollment_obj = MagicMock()
-        mock_enrollment_obj.json = {
-            "challenge": "mock_challenge_string_for_enrollment",
-            "appId": appid,
-            "version": "U2F_V2",
-        }
-        mock_enrollment_obj.data_for_client = {
-            "challenge": "mock_challenge_string_for_enrollment",
-            "appId": appid,
-            "version": "U2F_V2",
-        }
-        return mock_enrollment_obj
-
-    def create_u2f_device_mock(
-        self,
-        public_key="test_public_key",
-        key_handle="test_key_handle",
-    ):
-        """Create a mock U2F device for complete_registration return value.
-
-        Args:
-            public_key (str): Mock public key for the device
-            key_handle (str): Mock key handle for the device
-
-        Returns:
-            MagicMock: Mock device object with .json attribute
-
-        Used by: test_u2f.py ONLY
-        """
-
-        mock_device = MagicMock()
-        mock_device.json = json.dumps(
-            {"publicKey": public_key, "keyHandle": key_handle, "version": "U2F_V2"}
-        )
-        return mock_device
-
-    def create_u2f_response_data(
-        self,
-        registration_data="BQQtEmhWVgvbh-8GpjsHbj_d5FB9iNoRL1pX4ckA",
-        version="U2F_V2",
-        client_data="eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoi...",
-    ):
-        """Create realistic U2F response data for testing.
-
-        Args:
-            registration_data (str): Mock registration data
-            version (str): U2F version
-            client_data (str): Mock client data
-
-        Returns:
-            dict: U2F response data structure
-
-        Used by: test_u2f.py ONLY
-        """
-        return {
-            "registrationData": registration_data,
-            "version": version,
-            "clientData": client_data,
-        }
 
     def get_dropdown_menu_items(self, content, menu_class="dropdown-menu"):
         """Extract text items from a dropdown menu in HTML content.
@@ -1455,7 +1344,7 @@ class MFATestCase(_BaseTestCase):
 
         Used by: test_trusteddevice.py ONLY
         """
-        from jose import jwt
+        import jwt
         from django.conf import settings
 
         if username is None:

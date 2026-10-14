@@ -430,7 +430,6 @@ class ConfigTestCase(MFATestCase):
 
         URLs tested:
         - mfa_home: Main MFA page (should hide disallowed methods)
-        - start_u2f: U2F setup page (should remain accessible)
         """
         self.login_user()
 
@@ -448,9 +447,6 @@ class ConfigTestCase(MFATestCase):
                 "RECOVERY": "Backup Codes",
                 "TOTP": "Authenticator app",
             },
-            # Required U2F settings
-            U2F_APPID="https://localhost",
-            U2F_FACETS=["https://localhost"],
             # Use a valid URL name from urls.py
             MFA_REDIRECT_AFTER_REGISTRATION="mfa_home",
             MFA_SUCCESS_REGISTRATION_MSG="Success",
@@ -472,10 +468,6 @@ class ConfigTestCase(MFATestCase):
             # Verify U2F is not in dropdown menu
             menu_items = self.get_dropdown_menu_items(content)
             self.assertNotIn("U2F", menu_items)
-
-            # Verify U2F endpoint remains accessible
-            response = self.client.get(self.get_mfa_url("start_u2f"))
-            self.assertEqual(response.status_code, 200)
 
     def test_enforced_recovery_behavior(self):
         """Behaves correctly when recovery method is enforced.
@@ -500,8 +492,6 @@ class ConfigTestCase(MFATestCase):
             MFA_RENAME_METHODS={"RECOVERY": "Backup Codes"},
             MFA_ENFORCE_RECOVERY_METHOD=True,
             MFA_REDIRECT_AFTER_REGISTRATION="mfa_home",
-            U2F_APPID="https://localhost",
-            U2F_FACETS=["https://localhost"],
         ):
             # First verify the recovery endpoint is accessible
             response = self.client.get(self.get_mfa_url("manage_recovery_codes"))
@@ -709,7 +699,6 @@ class ConfigTestCase(MFATestCase):
             # Verify default names in dropdown menu
             self.assertIn("Authenticator app", menu_items)  # TOTP default
             self.assertIn("Email Token", menu_items)  # EMAIL default
-            self.assertIn("Security Key", menu_items)  # U2F default
             self.assertIn("FIDO2 Security Key", menu_items)  # FIDO2 default
             self.assertIn("Trusted Device", menu_items)  # TD default
 
@@ -724,7 +713,6 @@ class ConfigTestCase(MFATestCase):
         2. Method keys must exactly match template expectations:
            - "Email" - For email token method
            - "TOTP" - For authenticator app
-           - "U2F" - For security key
            - "FIDO2" - For biometric auth
            - "Trusted_Devices" - For trusted device (matches template check)
         3. No methods are disallowed or hidden
@@ -741,7 +729,6 @@ class ConfigTestCase(MFATestCase):
             MFA_RENAME_METHODS={
                 "TOTP": "Custom Authenticator",
                 "Email": "Custom Email",  # Must match template's case
-                "U2F": "Custom Security Key",
                 "FIDO2": "Custom Biometric",
                 "Trusted_Devices": "Custom Device",
             },
@@ -755,7 +742,6 @@ class ConfigTestCase(MFATestCase):
             # Verify custom names appear as exact menu items
             self.assertIn("Custom Authenticator", menu_items)
             self.assertIn("Custom Email", menu_items)
-            self.assertIn("Custom Security Key", menu_items)
             self.assertIn("Custom Biometric", menu_items)
             self.assertIn("Custom Device", menu_items)
 
@@ -890,8 +876,6 @@ class ConfigTestCase(MFATestCase):
                 "TOTP": "Authenticator app",
             },
             MFA_REDIRECT_AFTER_REGISTRATION="mfa_home",
-            U2F_APPID="https://localhost",
-            U2F_FACETS=["https://localhost"],
         ):
             response = self.client.get(self.get_mfa_url("mfa_home"))
             self.assertEqual(response.status_code, 200)
@@ -923,8 +907,6 @@ class ConfigTestCase(MFATestCase):
             MFA_HIDE_DISABLE=(),
             MFA_RENAME_METHODS={"RECOVERY": "Backup Codes"},
             MFA_REDIRECT_AFTER_REGISTRATION="mfa_home",
-            U2F_APPID="https://localhost",
-            U2F_FACETS=["https://localhost"],
         ):
             response = self.client.get(self.get_mfa_url("mfa_home"))
             self.assertEqual(response.status_code, 200)
@@ -954,8 +936,6 @@ class ConfigTestCase(MFATestCase):
                 "RECOVERY": "Backup Codes",
             },
             MFA_REDIRECT_AFTER_REGISTRATION="mfa_home",
-            U2F_APPID="https://localhost",
-            U2F_FACETS=["https://localhost"],
         ):
             response = self.client.get(self.get_mfa_url("mfa_home"))
             self.assertEqual(response.status_code, 200)
@@ -969,8 +949,6 @@ class ConfigTestCase(MFATestCase):
 
             # Verify endpoints remain accessible even when method is disallowed
             response = self.client.get(self.get_mfa_url("start_new_otop"))
-            self.assertEqual(response.status_code, 200)  # Should still be accessible
-            response = self.client.get(self.get_mfa_url("start_u2f"))
             self.assertEqual(response.status_code, 200)  # Should still be accessible
 
 
@@ -1013,14 +991,6 @@ class MFAIntegrationTestCase(ConfigTestCase):
 
         Note: MFA_UNALLOWED_METHODS only affects UI visibility.
         - Endpoints remain accessible even for disallowed methods.
-        - U2F settings are still required even when U2F is disallowed.
-
-        In summary, U2F settings are required because the current architecture
-        separates UI visibility from endpoint accessibility, and the U2F module
-        needs these settings to function properly even when hidden from the UI.
-        This design allows for flexible configuration but means core settings
-        must always be present. A potential improvement would be to fully segregate
-        UI/API methods which could then be handled independently.
         """
         # Ensure user is logged in
         self.login_user()
@@ -1036,9 +1006,6 @@ class MFAIntegrationTestCase(ConfigTestCase):
             },
             MFA_ENFORCE_RECOVERY_METHOD=False,
             MFA_REDIRECT_AFTER_REGISTRATION="mfa_home",
-            # Required U2F settings
-            U2F_APPID="https://localhost",
-            U2F_FACETS=["https://localhost"],
         ):
             # All methods should be available
             response = self.client.get(self.get_mfa_url("mfa_home"))
@@ -1084,9 +1051,6 @@ class MFAIntegrationTestCase(ConfigTestCase):
             },
             MFA_ENFORCE_RECOVERY_METHOD=False,
             MFA_REDIRECT_AFTER_REGISTRATION="mfa_home",
-            # Required U2F settings (needed even when U2F is disallowed)
-            U2F_APPID="https://localhost",
-            U2F_FACETS=["https://localhost"],
         ):
             # Only allowed methods should be visible in UI
             response = self.client.get(self.get_mfa_url("mfa_home"))
@@ -1112,8 +1076,6 @@ class MFAIntegrationTestCase(ConfigTestCase):
             # Verify endpoints remain accessible even when method is disallowed
             response = self.client.get(self.get_mfa_url("start_new_otop"))
             self.assertEqual(response.status_code, 200)  # Should still be accessible
-            response = self.client.get(self.get_mfa_url("start_u2f"))
-            self.assertEqual(response.status_code, 200)  # Should still be accessible
 
         # Test with enforced recovery method
         with override_settings(
@@ -1125,9 +1087,6 @@ class MFAIntegrationTestCase(ConfigTestCase):
             },
             MFA_ENFORCE_RECOVERY_METHOD=True,
             MFA_REDIRECT_AFTER_REGISTRATION="mfa_home",
-            # Required U2F settings
-            U2F_APPID="https://localhost",
-            U2F_FACETS=["https://localhost"],
         ):
             # First verify the recovery endpoint is accessible
             response = self.client.get(self.get_mfa_url("manage_recovery_codes"))

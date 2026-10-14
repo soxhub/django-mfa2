@@ -165,7 +165,6 @@ PASSWORD_HASHERS += ["mfa.recovery.Hash"]
 RECOVERY_ITERATION = 1  # Number of iteration for recovery code, higher is more secure, but uses more resources for generation and check...
 TOKEN_ISSUER_NAME = "PROJECT_NAME"  # TOTP Issuer name
 
-U2F_APPID = "https://localhost:8000"  # URL For U2F
 FIDO_SERVER_ID = (
     "localhost"  # Server rp id for FIDO2, it the full domain of your project
 )

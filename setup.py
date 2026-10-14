@@ -17,10 +17,9 @@ setup(
     install_requires=[
         "django >= 2.0",
         "pyotp",
-        "python-u2flib-server",
         "ua-parser",
         "user-agents",
-        "python-jose",
+        "PyJWT>=2.0",
         "fido2 >= 1.1.1,<2.3",
     ],
     python_requires=">=3.5",

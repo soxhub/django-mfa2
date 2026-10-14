@@ -1,4 +1,4 @@
-from . import views, totp, U2F, TrustedDevice, helpers, FIDO2, Email, recovery
+from . import views, totp, TrustedDevice, helpers, FIDO2, Email, recovery
 
 # app_name='mfa'
 
@@ -23,11 +23,6 @@ urlpatterns = [
     url(r"recovery/recheck", recovery.recheck, name="recovery_recheck"),
     url(r"email/start/", Email.start, name="start_email"),
     url(r"email/auth/", Email.auth, name="email_auth"),
-    url(r"u2f/$", U2F.start, name="start_u2f"),
-    url(r"u2f/bind", U2F.bind, name="bind_u2f"),
-    url(r"u2f/auth", U2F.auth, name="u2f_auth"),
-    url(r"u2f/process_recheck", U2F.process_recheck, name="u2f_recheck"),
-    url(r"u2f/verify", U2F.verify, name="u2f_verify"),
     url(r"fido2/$", FIDO2.start, name="start_fido2"),
     url(r"fido2/auth", FIDO2.auth, name="fido2_auth"),
     url(r"fido2/begin_auth", FIDO2.authenticate_begin, name="fido2_begin_auth"),

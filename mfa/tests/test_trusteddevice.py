@@ -68,7 +68,7 @@ class TrustedDeviceViewTests(MFATestCase):
 
         # Test with invalid JWT token (properly formatted but invalid)
         # This will cause a JWTError when trying to decode with wrong secret
-        from jose import jwt
+        import jwt
 
         invalid_token = jwt.encode(
             {"username": "wrong_user", "key": "wrong_key"}, "wrong_secret_key"
@@ -189,7 +189,7 @@ class TrustedDeviceViewTests(MFATestCase):
         self.get_user_keys().delete()
 
         # Create a valid JWT token but no corresponding User_Keys record
-        from jose import jwt
+        import jwt
         from django.conf import settings
 
         valid_token = jwt.encode(
@@ -650,7 +650,7 @@ class TestTrustedDeviceModule(MFATestCase):
         request.COOKIES["deviceid"] = "test_jwt_token"
 
         with patch(
-            "jose.jwt.decode"
+            "jwt.decode"
         ) as mock_decode:  # Mock external JOSE library to isolate MFA project JWT token processing
             mock_decode.return_value = {"username": self.username, "key": "TEST123"}
 
@@ -684,7 +684,7 @@ class TestTrustedDeviceModule(MFATestCase):
         request.COOKIES["deviceid"] = "test_jwt_token"
 
         with patch(
-            "jose.jwt.decode"
+            "jwt.decode"
         ) as mock_decode:  # Mock external JOSE library to isolate MFA project JWT token processing
             mock_decode.return_value = {"username": "different_user", "key": "TEST123"}
 
@@ -701,7 +701,7 @@ class TestTrustedDeviceModule(MFATestCase):
         request.COOKIES["deviceid"] = "test_jwt_token"
 
         with patch(
-            "jose.jwt.decode"
+            "jwt.decode"
         ) as mock_decode:  # Mock external JOSE library to isolate MFA project JWT token processing
             mock_decode.return_value = {"username": self.username, "key": "TEST123"}
 
@@ -728,7 +728,7 @@ class TestTrustedDeviceModule(MFATestCase):
         request.COOKIES["deviceid"] = "test_jwt_token"
 
         with patch(
-            "jose.jwt.decode"
+            "jwt.decode"
         ) as mock_decode:  # Mock external JOSE library to isolate MFA project JWT token processing
             mock_decode.return_value = {"username": self.username, "key": "TEST123"}
 
@@ -755,7 +755,7 @@ class TestTrustedDeviceModule(MFATestCase):
         request.COOKIES["deviceid"] = "test_jwt_token"
 
         with patch(
-            "jose.jwt.decode"
+            "jwt.decode"
         ) as mock_decode:  # Mock external JOSE library to isolate MFA project JWT token processing
             mock_decode.return_value = {"username": self.username, "key": "TEST123"}
 
